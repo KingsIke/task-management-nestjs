@@ -40,7 +40,7 @@ export class TasksService {
         const task = this.getTaskById(id)
         task.status = status;
         task.description = description;
-        task.title = title
+        task.title = title;
         return task
     }
 
