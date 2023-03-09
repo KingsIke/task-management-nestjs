@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+// import {  } from '@nestjs/common/pipes';
 // import { Patch } from '@nestjs/common/decorators';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
+import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
 import { Task, TaskStatus } from './task.model';
 import { TasksService } from './tasks.service';
 
@@ -9,10 +11,25 @@ import { TasksService } from './tasks.service';
 export class TasksController {
     constructor(private taskservice: TasksService) { }
 
-    @Get('getAllTask')
-    getAllTasks(@Query() filterDto: GetTasksFilterDto): Task[] {
+    // @Get('getAllTask')
+    // getAllTasks(): Task[] {
+    //     return this.taskservice.getAllTask()
+    // }
+    // I embeded it in the filter 
+
+
+    @Get()
+    getTasks(
+        @Query(ValidationPipe) filterDto: GetTasksFilterDto
+    ): Task[] {
         console.log(filterDto)
-        return this.taskservice.getAllTask()
+        if (Object.keys(filterDto).length) {
+            return this.taskservice.getFilterTask(filterDto)
+        }
+        else {
+            return this.taskservice.getAllTask()
+
+        }
     }
 
     @Post('createTask')
@@ -20,6 +37,7 @@ export class TasksController {
     //     @Body('title') title: string,
     //     @Body('description') description: string
     // ) { //use when validation
+    @UsePipes(ValidationPipe)
     createTask(@Body() createTaskDto: CreateTaskDto) {
 
         return this.taskservice.creatTask(createTaskDto)
@@ -35,7 +53,7 @@ export class TasksController {
     @Patch(':id')
     updateTask(
         @Param('id') id: string,
-        @Body('status') status: TaskStatus,
+        @Body('status', TaskStatusValidationPipe) status: TaskStatus,
         @Body() createTaskDto: CreateTaskDto
     ): Task {
         return this.taskservice.updateTaskById(id, status, createTaskDto)
