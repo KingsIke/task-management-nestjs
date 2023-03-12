@@ -1,3 +1,6 @@
+## typeORM
+ yarn add @nestjs/typeorm typeorm pg
+
 ## GTO
 it Class or Interface but Class is better in NEST JS
  
