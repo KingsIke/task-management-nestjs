@@ -1,4 +1,4 @@
-import { TaskStatus } from "../Crud/task.model";
+import { TaskStatus } from "../task-status.enums";
 // import { IsOptional, IsIn, IsNotEmpty } from 'class-validator'
 import { IsOptional, IsIn, IsNotEmpty } from 'class-validator'
 
