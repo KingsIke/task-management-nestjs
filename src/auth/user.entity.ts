@@ -1,20 +1,16 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { TaskStatus } from './task-status.enums';
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
-export class TaskEntity extends BaseEntity {
-
+export class UserEntity extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
+    
     @Column()
-    title: string;
+    username: string;
 
     @Column()
-    description: string;
-
-    @Column()
-    status: TaskStatus;
+    password: string;
 
     @BeforeInsert()
     addId() {

@@ -1,52 +1,46 @@
-// import { Repository } from 'typeorm';
-// import { TaskEntity } from './task.entity'
-
-
-// export class TaskRepository extends Repository<TaskEntity>{
-
-// }
-
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { TaskStatus } from './task-status.enums';
 import { TaskEntity } from './task.entity';
 
 @Injectable()
+
 export class TaskRepository extends Repository<TaskEntity> {
-    // async createTask(createTaskDto: CreateTaskDto) {
-    //     const { title, description } = createTaskDto
+    constructor(private dataSource: DataSource) {
+        super(TaskEntity, dataSource.createEntityManager())
 
-    //     const task = new TaskEntity()
-    //     task.description = description;
-    //     task.title = title
-    //     task.status = TaskStatus.OPEN
+    }
 
-    //     await task.save()
+    // ******************************** GET ALL ELEMENT AND BY FILTER**********************
 
-    //     return task
-    // }
+    async getFiltered(filterDto: GetTasksFilterDto): Promise<TaskEntity[]> {
+
+        const { status, search } = filterDto;
+        const query = this.createQueryBuilder('task');
+        if (status) {
+            query.andWhere('task.status = :status', { status })
+        }
+        if (search) {
+            query.andWhere('(task.title LIKE :search OR task.description LIKE :search)', { search: `%${search}%` })
+
+        }
+        const tasks = await query.getMany()
+        return tasks
+    }
+
+    // ===================================== CREATE TASK ====================================
+    async createTask(createTaskDto: CreateTaskDto) {
+        const { title, description } = createTaskDto
+
+        const task = new TaskEntity()
+        task.description = description;
+        task.title = title
+        task.status = TaskStatus.OPEN
+
+        await task.save()
+
+        return task
+    }
 }
-
-// import { Injectable } from '@nestjs/common';
-// import { Connection, Repository } from 'typeorm';
-// import { TaskEntity } from './task.entity';
-
-// @Injectable()
-// export class TaskRepository extends Repository<TaskEntity> {
-//     constructor(connection: Connection) {
-//         super(connection.getRepository(TaskEntity));
-//     }
-//     async createTask(createTaskDto: CreateTaskDto): Promise<TaskEntity> {
-//         const { title, description } = createTaskDto
-
-//         const task = new TaskEntity()
-//         task.description = description;
-//         task.title = title
-//         task.status = TaskStatus.OPEN
-
-//         await task.save()
-
-//         return task
-//     }
-// }
