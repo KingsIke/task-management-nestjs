@@ -60,3 +60,7 @@ Nest is [MIT licensed](LICENSE).
 nest g module auth
 nest g controller auth --no-spec
 nest g service auth --no-spec
+
+
+# JWT 
+ yarn add @nestjs/jwt @nestjs/passport passport passport-jwt

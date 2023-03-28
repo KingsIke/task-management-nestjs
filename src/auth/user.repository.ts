@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ConflictException, InternalServerErrorException } from '@nestjs/common/exceptions';
+import * as bcrypt from "bcrypt"
 import { DataSource, Repository } from 'typeorm';
+import { ConflictException, InternalServerErrorException } from '@nestjs/common/exceptions';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UserEntity } from './user.entity';
 
@@ -14,10 +15,12 @@ export class UserRepository extends Repository<UserEntity> {
 
     async signUp(authCredentialsDto: AuthCredentialsDto): Promise<UserEntity> {
         const { username, password } = authCredentialsDto;
+
         const user = new UserEntity()
         user.username = username;
-        user.password = password;
-        // await user.save()
+        user.salt = await bcrypt.genSalt()
+        user.password = await this.hashPassword(password, user.salt)
+        console.log(user.password)
         try {
 
             await user.save()
@@ -32,27 +35,25 @@ export class UserRepository extends Repository<UserEntity> {
         }
         return user
     }
+    /////////////////////// HASHING PASSWORD ///////////////////////////////
+    private async hashPassword(password: string, salt: string): Promise<string> {
+        return bcrypt.hash(password, salt)
+    }
 
+    // ======================= VALIDATE PASSWORD ========================
+    async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+        const { username, password } = authCredentialsDto;
+        const user = await this.findOne({
+            where: {
+                username,
+            },
+        })
+
+        if (user && await user.validatePassword(password)) {
+            return user.username
+        }
+        else {
+            return null
+        }
+    }
 }
-
-// import { Injectable } from '@nestjs/common';
-// import { DataSource, EntityRepository, Repository } from 'typeorm';
-// import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-// import { User } from './user.entity';
-
-// @EntityRepository(User)
-// @Injectable()
-// export class UserRepository extends Repository<User> {
-//     constructor(private dataSource: DataSource) {
-//         super(User, dataSource.createEntityManager());
-//     }
-
-//     async signUp(authCredentialsDto: AuthCredentialsDto) {
-//         const { username, password } = authCredentialsDto;
-//         const user = new UserEntity();
-//         user.username = username;
-//         user.password = password;
-//         await user.save();
-//     }
-// }
-
