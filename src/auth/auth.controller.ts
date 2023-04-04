@@ -1,9 +1,7 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common/pipes';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { GetUser } from './get-user.decorator';
 import { UserEntity } from './user.entity';
 
 @Controller('auth')
@@ -22,11 +20,13 @@ export class AuthController {
         return this.authService.signIn(authCredentialsDto)
     }
 
-    @Post('/test')
-    @UseGuards(AuthGuard())
-    test(@GetUser() user: UserEntity) {
-        console.log(user)
-    }
+
+    //=========== For Decorator testing to get users==============
+    // @Post('/test')
+    // @UseGuards(AuthGuard())
+    // test(@GetUser() user: UserEntity) {
+    //     console.log(user)
+    // }
 
     // test(@Req() req) {
     //     console.log(req)

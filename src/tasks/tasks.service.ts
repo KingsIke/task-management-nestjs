@@ -6,6 +6,7 @@ import { TaskStatus } from './task-status.enums';
 import { TaskEntity } from './task.entity';
 import { TaskRepository } from './task.repository';
 import { v4 as uuidv4 } from 'uuid';
+import { UserEntity } from 'src/auth/user.entity';
 // import { Repository } from 'typeorm';
 // import { Task, TaskStatus } from './task.model';
 // import { v1 as uuidv1 } from 'uuid';
@@ -25,11 +26,14 @@ export class TasksService {
     ) { }
 
     // ---------------GET BY ID ------------------------
-    async getTaskById(id: string): Promise<TaskEntity> {
+    async getTaskById(
+        id: string,
+        user: UserEntity
+    ): Promise<TaskEntity> {
         console.log('this.taskRepository', this.taskRepository)
         const found = await this.taskRepository.findOne({
             where: {
-                id,
+                id, userId: user.id
             },
         })
 
@@ -41,18 +45,24 @@ export class TasksService {
         }
     }
     // ==========================GET ALL / GET BY FILTER ==================
-    async getTaskFiltered(filterDto: GetTasksFilterDto): Promise<TaskEntity[]> {
+    async getTaskFiltered(
+        filterDto: GetTasksFilterDto,
+        user: UserEntity
+    ): Promise<TaskEntity[]> {
 
-        return this.taskRepository.getFiltered(filterDto)
+        return this.taskRepository.getFiltered(filterDto, user)
 
     }
 
 
     //////////////////////// DELETE BY ID /////////////////////
-    async deleteTask(id: string): Promise<DeleteResult> {
+    async deleteTask(
+        id: string,
+        user: UserEntity
+    ): Promise<DeleteResult> {
         try {
 
-            const result = await this.taskRepository.delete(id)
+            const result = await this.taskRepository.delete({ id, userId: user.id })
             if (result.affected === 0) {
                 throw new BadRequestException(`Task with Id "${id}" not found`)
             }
@@ -65,14 +75,25 @@ export class TasksService {
     }
 
     /*               CREATE TASK                          */
-    async createTask(createTaskDto: CreateTaskDto) {
+    async createTask(
+        createTaskDto: CreateTaskDto,
+        user: UserEntity
+    ) {
 
-        return this.taskRepository.createTask(createTaskDto)
+        return this.taskRepository.createTask(createTaskDto, user)
     }
-    async updateTask(id: string, status: TaskStatus, createTaskDto: CreateTaskDto): Promise<TaskEntity> {
+
+
+    // '''''''''''''''''Update Task'''''''''''''''''''''''''''
+    async updateTask(
+        id: string,
+        status: TaskStatus,
+        createTaskDto: CreateTaskDto,
+        user: UserEntity
+    ): Promise<TaskEntity> {
         const { title, description } = createTaskDto
 
-        const task = await this.getTaskById(id)
+        const task = await this.getTaskById(id, user)
         task.status = status;
         task.description = description
         task.title = title

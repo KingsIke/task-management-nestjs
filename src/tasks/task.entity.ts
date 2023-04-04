@@ -1,6 +1,7 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { TaskStatus } from './task-status.enums';
 import { v4 as uuidv4 } from 'uuid';
+import { UserEntity } from 'src/auth/user.entity';
 
 @Entity()
 export class TaskEntity extends BaseEntity {
@@ -27,4 +28,9 @@ export class TaskEntity extends BaseEntity {
     @UpdateDateColumn({ name: 'update_at' })
     update_at: Date
 
+    @ManyToOne(type => UserEntity, user => user.tasks, { eager: false })
+    user: UserEntity
+
+    @Column()
+    userId: string
 }
