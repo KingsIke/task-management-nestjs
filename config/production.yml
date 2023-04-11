@@ -1,2 +1,5 @@
+server: 
+  origin: https://task-management-frontend-phi.vercel.app
+
 db:
   synchronize: false
